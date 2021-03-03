@@ -12,6 +12,8 @@ import addSuitangTest from '../components/Teacher/addSuitangTest'
 import addSubject from '../components/Teacher/addSubject'
 import ShowSubject from '../components/Student/ShowSubject'
 import test from '../components/Student/test'
+import NewForumMain from '../components/forum/NewForumMain'
+import myPage from '../components/forum/myPage'
 
 Vue.use(Router)
 
@@ -67,6 +69,14 @@ export default new Router({
           path: '/ShowSubject',
           name: ShowSubject,
           component: ShowSubject
+        },{
+          path:'/NewForumMain',
+          name: NewForumMain,
+          component:NewForumMain
+        }, {
+          path: '/myPage',
+          name: myPage,
+          component:myPage
         }
       ]
     }

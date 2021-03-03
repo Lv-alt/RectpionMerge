@@ -58,7 +58,7 @@
       <el-table
         :data="tableData"
         border
-        style="width: 863px;margin-top: 50px;"
+        style="width: 863px;margin-top: 15px;position: absolute; top: 170px"
         size="medium"
 
       >
@@ -98,10 +98,16 @@
             <div v-if="tableData[scope.$index].state_id == 1">
               等待答题
             </div>
-            <div v-if="tableData[scope.$index].state_id == 2">
-              <el-button type="text" size="mini" @click="YesOrNoClick(scope.row,3)">Yes</el-button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              <el-button type="text" size="mini" @click="YesOrNoClick(scope.row,4)">No</el-button>
+            <div v-if="tableData[scope.$index].state_id == 2 && tableData[scope.$index].st_name == '作业' ">
+              <el-button type="text" size="mini" @click="ShowStudentUploadSubject(scope.index,scope.row)">查看</el-button>
+              <el-button type="text" size="mini" @click="YesOrNoClick(scope.row,3)">通过</el-button>
+              <el-button type="text" size="mini" @click="YesOrNoClick(scope.row,4)">不通过</el-button>
             </div>
+            <div v-if="tableData[scope.$index].state_id == 2 && tableData[scope.$index].st_name != '作业'">
+              <el-button type="text" size="mini" @click="YesOrNoClick(scope.row,3)">通过</el-button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <el-button type="text" size="mini" @click="YesOrNoClick(scope.row,4)">不通过</el-button>
+            </div>
+
             <div v-if="tableData[scope.$index].state_id == 3">
               已通过
             </div>
@@ -112,7 +118,8 @@
           </template>
         </el-table-column>
       </el-table>
-      <div class="block">
+
+      <div class="block" style="position: absolute;top: 460px;left:600px">
         <el-pagination
           :small="flag"
           layout="prev, pager, next"
@@ -121,6 +128,34 @@
           :page-size="pageSize">
         </el-pagination>
       </div>
+      <el-dialog
+        title="查看作业"
+        :visible.sync="dialogVisible"
+        width="40%"
+        :before-close="handleClose">
+        备注：<el-input
+        placeholder="请输入内容"
+        v-model="remarks"
+        size="mini"
+        style="width: 200px;"
+        :disabled="true">
+        </el-input>
+        <br><br>
+
+        <div style="margin-left: -230px;">
+          <!--<viewer>
+            <img v-for="item in imagesPath" style="width:70px;height: 80px;margin-left: 10px;" :src="item"/>
+          </viewer>-->
+          <el-popover placement="top-start" title="" trigger="hover" v-for="item in imagesPath" style="width:70px;height: 80px;margin-left: 30px;" >
+            <img style="width:800px;height: 400px;" :src="item"/>
+            <img  slot="reference" :src="item" style="width:70px;height: 80px;margin-left: -10px;">
+          </el-popover>
+        </div>
+        <span slot="footer" class="dialog-footer">
+        <el-button size="mini" @click="dialogVisible = false">取 消</el-button>
+        <el-button size="mini"  type="primary" @click="dialogVisible = false">确 定</el-button>
+      </span>
+      </el-dialog>
     </div>
 </template>
 
@@ -144,7 +179,11 @@
         pageSize:5,
         stateOptions:[],
         stateValue:'',
-        subjectState:''
+        subjectState:'',
+        dialogVisible: false,
+        remarks:'我是备注',
+        imagesPath:[],
+
       }
     },
     //页面加载事件，查询出该老师带的所有班级
@@ -182,7 +221,7 @@
       //题目类型更改事件，发送请求更新数据
       subjectTypeChange(subjectTypeIdTwo){
         this.typeValue = subjectTypeIdTwo;
-        console.info(this.typeValue)
+
         //发送请求更新数据
         this.$http.post("/User/getUserByClassAndSubject",
           {classId:this.ClassValue,subjectTypeId:subjectTypeIdTwo,likeName:'%'+this.TextValue+'%',beginDate:beginDate,endDate:endDate,state_id:this.stateValue}).then(response=>{
@@ -257,7 +296,25 @@
             this.pageSum = response.data.data.total;
           })
         })
-      }
+      },
+      //查看学生上传的作业
+      ShowStudentUploadSubject(index,row){
+        this.dialogVisible = true;
+        //查询出该学生下的所有图片，
+        this.$http.post("/Student/getSubjectByStudent",{subjectId:row.s_id,u_id:row.u_id }).then(response=>{
+          this.imagesPath = response.data.data.imagePaths;
+          console.info(response.data.data)
+          this.remarks = response.data.data.studentUploadRemarks;
+        })
+      },
+      //是否确认关闭对话框
+      handleClose(done) {
+        this.$confirm('确认关闭？')
+          .then(_ => {
+            done();
+          })
+          .catch(_ => {});
+      },
     }
   }
 </script>

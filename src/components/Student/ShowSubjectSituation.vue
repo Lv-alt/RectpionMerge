@@ -19,7 +19,7 @@
     <el-table
       :data="tableData"
       border
-      style="width: 863px;margin-top: 50px;"
+      style="width: 883px;margin-top: 50px;"
       size="medium">
       <el-table-column
         prop="s_subjectName"
@@ -57,7 +57,7 @@
         label="生成日期"
         width="180">
       </el-table-column>
-      <el-table-column label="操作">
+      <el-table-column label="操作" width="90">
         <template slot-scope="scope">
           <!--<el-button
             size="small"
